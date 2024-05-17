@@ -57,14 +57,15 @@
 
         <!-- 内容区域 -->
         <div class="tpl-content-wrapper">
-            {% if request.session.userinfo.type == 'student'  %}
+            {% if request.session.userinfo.type == 'student' %}
                 <iframe src="{% url 'student_index' %}" class="a-iframe iframe-no-border iframe-scrollable"></iframe>
-               <!-- <iframe src="{% url 'student_index' %}" frameborder="0" scrolling="yes" class="a-iframe"></iframe>-->
-            {% elif request.session.userinfo.type == 'teacher'  %}
+                <!-- <iframe src="{% url 'student_index' %}" frameborder="0" scrolling="yes" class="a-iframe"></iframe>-->
+            {% elif request.session.userinfo.type == 'teacher' %}
                 <!--<iframe src="{% url 'teacher_index' %}" frameborder="0" scrolling="yes" class="a-iframe"></iframe>-->
                 <iframe src="{% url 'student_index' %}" class="a-iframe iframe-no-border iframe-scrollable"></iframe>
-            {% elif request.session.userinfo.type == 'admin'  %}
-                <1--<iframe src="{% url 'admin_index' %}" frameborder="0" scrolling="yes" class="a-iframe"></iframe>-->
+            {% elif request.session.userinfo.type == 'admin' %}
+                <1--
+                <iframe src="{% url 'admin_index' %}" frameborder="0" scrolling="yes" class="a-iframe"></iframe>-->
                 <iframe src="{% url 'student_index' %}" class="a-iframe iframe-no-border iframe-scrollable"></iframe>
             {% endif %}
         </div>
