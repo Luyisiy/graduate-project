@@ -19,11 +19,11 @@
                 <li class="am-text-sm tpl-header-navbar-welcome">
                     <a href="javascript:;">欢迎你, <span>
                         {% if request.session.userinfo.type == 'admin' %}
-                        管理员
+                        {{request.session.userinfo.name}}
                         {% elif request.session.userinfo.type == 'teacher' %}
-                        教师
+                        {{request.session.userinfo.name}}
                         {% elif request.session.userinfo.type == 'student' %}
-                        学生
+                        {{request.session.userinfo.name}}
                         {% endif %}
                     </span> </a>
                 </li>

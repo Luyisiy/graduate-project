@@ -204,8 +204,8 @@
 
                 <div class="row   am-cf index-top">
                     <div class="am-u-sm-12 am-u-md-12 am-u-lg-9">
-                        <div class="page-header-heading"><span class="am-icon-home page-header-heading-icon"></span> 开题答辩 <small>查看</small></div>
-                        <p class="page-header-description">小组任务教师请选择可以参考学生上传的毕业论文，再给出成绩！</p>
+                        <div class="page-header-heading"><span class="am-icon-home page-header-heading-icon"></span> 开题答辩报告</div>
+                        <p class="page-header-description">小组任务教师请选择可以参考学生上传的开题答辩报告，再给出成绩！</p>
                         <p class="page-header-description">当前教师的小组身份： {{data.group_type}}</p>
                     </div>
 <!--                    <div class="am-u-lg-3 tpl-index-settings-button">-->
@@ -218,17 +218,14 @@
                     <div class="am-u-sm-12 am-u-md-12 am-u-lg-12">
                         <div class="widget am-cf">
                             <div class="widget-head am-cf">
-                                <div class="widget-title am-fl">学生毕业论文</div>
-                                <div class="widget-function am-fr">
-                                    <a href="javascript:;" class="am-icon-cog"></a>
-                                </div>
+                                <div class="widget-title am-fl">学生开题答辩报告</div>
                             </div>
                             <div class="widget-tail am-cf">
                                 {% for i,item in graduate_data %}
                                 <div class="widget-title am-fl"  id="article_download{{i | add:1}}">
                                     {{item.student_name}}毕业论文：
                                     {% if item.article_docx %}
-                                         <a href="{{item.article_docx }}" title="点击下载查看" download> 点击下载毕业论文 </a>
+                                         <a href="{{item.article_docx }}" title="点击下载查看" download> 点击下载开题答辩报告 </a>
                                     {% else %}
                                          <a href="javascript:;" title="请先上传毕业论文" > 暂无 </a>
                                     {% endif %}

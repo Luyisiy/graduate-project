@@ -46,11 +46,11 @@ def index(request):
     data3_1 = StudentGraduateArticle.objects.all ().count ()
     data3_2 = math.ceil(StudentGraduateArticle.objects.all ().count ()  / 2)
     show_data = {
-        'show_count1':data1_1,
+        'show_count1':data1_1, #这是学生的
         'show_add1':data1_2,
-        'show_count2':data2_1,
+        'show_count2':data2_1, #这是老师的
         'show_add2':data2_2,
-        'show_count3':data3_1,
+        'show_count3':data3_1,  #这是课题的
         'show_add3':data3_2,
     }
 

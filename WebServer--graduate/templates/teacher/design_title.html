@@ -19,7 +19,7 @@
     <style>
         .widget-body.widget-body-lg.am-fr
         .am-scrollable-horizontal {
-            height:250px!;
+            height:250px;
             min-height:250px!important;
         }
         .am-scrollable-horizontal{
@@ -210,9 +210,6 @@
                         <div class="widget am-cf">
                             <div class="widget-head am-cf">
                                 <div class="widget-title am-fl">上传任务书</div>
-                                <div class="widget-function am-fr">
-                                    <a href="javascript:;" class="am-icon-cog"></a>
-                                </div>
                             </div>
                             <div class="widget-body  widget-body-lg am-fr">
                                 <div class="am-scrollable-horizontal ">
@@ -243,9 +240,6 @@
                         <div class="widget am-cf">
                             <div class="widget-head am-cf">
                                 <div class="widget-title am-fl">上传指导书</div>
-                                <div class="widget-function am-fr">
-                                    <a href="javascript:;" class="am-icon-cog"></a>
-                                </div>
                             </div>
                             <div class="widget-body  widget-body-lg am-fr">
                                 <div class="am-scrollable-horizontal ">
@@ -293,9 +287,6 @@
                         <div class="widget am-cf">
                             <div class="widget-head am-cf">
                                 <div class="widget-title am-fl">毕业学生列表</div>
-                                <div class="widget-function am-fr">
-                                    <a href="javascript:;" class="am-icon-cog"></a>
-                                </div>
                             </div>
                             <div class="widget-body  widget-body-lg am-fr">
 
@@ -313,7 +304,7 @@
                                         {% for i,item in data_list %}
                                             <tr class="gradeX">
                                                 <td>{{i|add:1}}</td>
-                                                <td>{{item.number}}</td>
+                                                <td>{{item.id}}</td>
                                                 <td>{{item.name}}</td>
                                                 <td>
                                                     <div class="tpl-table-black-operation">

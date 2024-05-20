@@ -11,8 +11,6 @@ import math
 import datetime
 
 
-
-
 # 个人信息
 def index(request):
     # data = request.session.get("userinfo",None)
@@ -45,6 +43,7 @@ def index(request):
         'show_add3':data3_2,
     }
     return render(request,'teacher/index.html',{'data_list':data_list,'show_data':show_data})
+
 # 选择信息
 # (1.设计开题
 def design_title(request):
@@ -65,16 +64,32 @@ def design_title(request):
         StudentGraduateAnswer(teacher_id=id,teacher_name=name).save()
         StudentMiddleCheck(teacher_id=id,teacher_name=name).save()
     data_list = Student.objects.all()
-    return render(request,'teacher/design_title.html',{'data':data,'data_list': enumerate(data_list)})
+    data_list_select = StudentSelectTitle.objects.all()
+    student_id, new_data_list = [], []
+    for item in data_list_select:
+        if item.student_name:
+            student_id.append(item.student_id)
+    for student in data_list:
+        if student.id not in student_id:
+            new_data_list.append(student)
+    return render(request, 'teacher/design_title.html',
+                  {'data': data, 'data_list': enumerate(new_data_list), "data_list_select": data_list_select})
+
+
 @csrf_exempt # 允许跨站上传
+#不要对这个视图进行 CSRF（跨站请求伪造）保护。
 def doUploadTask(request):
     id = request.session["userinfo"].get("id",None)
 
     file = request.FILES.get("file")
     fileDir = upload(file)
     print('1上传的结果',fileDir)
+    #使用 Django 的 ORM（对象关系映射）机制，更新了数据库中
+    #StudentSelectTitle 表中 teacher_id 等于 id 的记录的 task_docx 字段，将其更新为 fileDir 所指示的文件路径。
     StudentSelectTitle.objects.filter(teacher_id=id).update(task_docx=fileDir)
+    #返回一个json数据
     return JsonResponse({'msg':"上传成功",'data':fileDir,'code':200})
+
 @csrf_exempt # 允许跨站上传
 def doUploadGuide(request):
     id = request.session["userinfo"].get("id",None)
@@ -84,17 +99,21 @@ def doUploadGuide(request):
     print('2上传的结果',fileDir)
     StudentSelectTitle.objects.filter(teacher_id=id).update(guide_docx=fileDir)
     return JsonResponse({'msg':"上传成功",'data':fileDir,'code':200})
+
 def doConfirmStudent(request):
     id = request.session["userinfo"].get("id",None)
 
     data = request.POST.dict()
     data.pop("csrfmiddlewaretoken",None)
+    #用data里面的数据更新了一下这几个表，将学生和老师的匹配关系加入到表中去
     StudentSelectTitle.objects.filter(teacher_id=id).update(**data)
     StudentTitleMsg.objects.filter(teacher_id=id).update(**data)
     StudentGraduateArticle.objects.filter(teacher_id=id).update(**data)
     StudentGraduateAnswer.objects.filter(teacher_id=id).update(**data)
     StudentMiddleCheck.objects.filter(teacher_id=id).update(**data)
+    #返回一个json格式的数据
     return JsonResponse({'msg':"提交成功",'code':200})
+
 def doSubmitBrief(request):
     id = request.session["userinfo"].get("id",None)
 
@@ -106,16 +125,20 @@ def doSubmitBrief(request):
     StudentGraduateAnswer.objects.filter(teacher_id=id).update(**data)
     StudentMiddleCheck.objects.filter(teacher_id=id).update(**data)
     return JsonResponse({'msg':"提交成功",'code':200})
+
 # (2.分组选择
 def group(request):
     id = request.session["userinfo"].get("id",None)
     name = request.session["userinfo"].get("name",None)
 
     # 先获取教师人数，保存对应的组
+    #获取教师的数量和已经存在教师组别的数量
     count1 = Teacher.objects.all().count()
     count2 = TeacherGroup.objects.all().count()
+    #计算还需创建的组数，每个组包含3个老师
     count_len = math.ceil(count1 / 3)
     need_len = count_len - count2
+
     print("组是",count2,count_len)
     if need_len:
         for i in range(count2+1,count_len+1):
@@ -130,6 +153,7 @@ def group(request):
     data1 = TeacherGroup.objects.filter(teacher_id__icontains=id,teacher_name__icontains=name).first()
     data = {}
     if data1:
+        #如果找到了当前分组，就吧组名和成员身份信息保存到data中
         # 组名
         data['group_name'] = data1.name
         # 身份类型
@@ -141,13 +165,16 @@ def group(request):
             if int(item1)==int(id) and item2==name:
                 data['group_type'] = item3
         print(data)
+        #最后传递给前端界面进行展示
     return render(request,'teacher/group.html',{'data_list':data_list,'data':data})
 def doConfirmGroup(request):
     id = request.session["userinfo"].get("id",None)
     name = request.session["userinfo"].get("name",None)
-
+    #请求的将数据保存到data里面
     data = request.POST.dict()
+    #移除POST数据中的CSRF令牌
     data.pop("csrfmiddlewaretoken",None)
+    #组内成员+1
     data['count'] = int(data['count']) + 1
     # 更新所有的数量
     obj = TeacherGroup.objects.filter(id=data['id'],name=data['name']).first()
@@ -188,11 +215,15 @@ def student_score(request):
     name = request.session["userinfo"].get("name",None)
 
     ## 毕业学生信息
+    #查询老师发布的学生标题信息
     data1= StudentTitleMsg.objects.filter(teacher_id=id,teacher_name=name).first()
+    #查询老师进行的中期检查信息
     data2= StudentMiddleCheck.objects.filter(teacher_id=id,teacher_name=name).first()
+    #查询老师进行的毕业答辩信息
     data3= StudentGraduateAnswer.objects.filter(teacher_id=id,teacher_name=name).first()
+    #查询教师指导的毕业文章信息
     data4= StudentGraduateArticle.objects.filter(teacher_id=id,teacher_name=name).first()
-
+    #根据毕业文章信息中的学生 ID 查询学生的其他信息，如学号等
     data5= Student.objects.filter(id=data4.student_id).first() if data4 else None
     total_data = {
         "first_score":data1.first_score if data1 else None,
@@ -211,7 +242,7 @@ def student_score(request):
         "guide_remark":data4.guide_remark if data4 else None,
         "view_score":data4.view_score if data4 else None,
         "view_remark":data4.view_remark if data4 else None,
-
+        #毕业项目的名称、简介、学生学号、姓名、老师姓名
         "name": data4.name if data4 else None,
         "brief": data4.brief if data4 else None,
         "number": data5.number if data5 else None,
@@ -223,18 +254,20 @@ def student_score(request):
     ## 毕业信息
     data = data1
     graduate_data = data4
-
+    #查询并显示教师发布的学生成绩信息，包括标题信息、中期检查信息、毕业答辩信息和毕业文章信息，以及学生的其他相关信息。
     return render(request,'teacher/student_score.html',{'data':data,'graduate_data':graduate_data,'total_data':total_data})
 def doSubmitEnglish(request):
     id = request.session["userinfo"].get("id",None)
     name = request.session["userinfo"].get("name",None)
-
+    #接收POST请求的数据，并转换为字典格式
     data = request.POST.dict()
     data.pop("csrfmiddlewaretoken",None)
+    #从数据中提取出英语成绩和备注
     new_data = {
         'english_score':data['score'],
         'english_remark':data['remark']
     }
+    #将新的成绩和备注更新到数据库中
     StudentTitleMsg.objects.filter (teacher_id=id,teacher_name=name).update (**new_data)
     return JsonResponse({'msg':"提交成功",'code':200})
 def doSubmitArticle(request):
@@ -284,7 +317,7 @@ def doOutputArticle(request):
         {'title': "查阅论文评语", "content": data4.view_remark if data4 else None},
 
     ]
-
+    #调用了一个函数 word，生成学生毕业文档，并将文档路径赋值给 fileDir 变量。
     fileDir = word('毕业生文档',file_list)
 
     return JsonResponse({'msg':"导出成功",'data':fileDir,'code':200})
@@ -299,6 +332,7 @@ def title_msg(request):
     group_student_arr= Student.objects.filter(group_name=data.group_name)
     graduate_data= []
     score_data= []
+    #使用循环遍历组内的每个学生，并查询其指导老师为当前教师的毕业文章和评分信息
     for item in group_student_arr:
         t_item = StudentGraduateArticle.objects.filter(teacher_id=id,student_id=item.id).values()
         if t_item:
@@ -316,6 +350,7 @@ def doFirstScore(request):
     new_data = {
         'first_score':data['score'],
     }
+    #根据教师的 id、姓名和学生的 id 筛选出相应的学生标题信息记录，然后使用 update 函数将新的开题答辩成绩信息更新到数据库中。
     StudentTitleMsg.objects.filter (teacher_id=id,teacher_name=name,student_id=data['id']).update (**new_data)
     return JsonResponse({'msg':"提交成功",'code':200})
 def doFirstRemark(request):
